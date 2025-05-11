@@ -1,23 +1,42 @@
+import os
 import sys
-from ingestion.loaders import UniversalLoader
+from ingestion.universal_loader import UniversalLoader
+from logging_config import setup_logger
+
+logger = setup_logger(__name__)
 
 
+def ingestion_pipeline(file_path):
+    logger.debug(f"ingestion_pipeline function received file_path: {file_path}")
 
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        logger.error(
+            f"Error: The file does not exist at the specified path: {file_path}"
+        )
+        logger.debug(f"Current working directory: {os.getcwd()}")
+        logger.debug(f"Directory contents: {os.listdir(os.path.dirname(file_path))}")
+        return
 
-def ingestion_pipeline(file_path: str):
     loader = UniversalLoader(file_path)
-    documents = loader.load()
-    for doc in documents:
-        print(doc.page_content)
-    
+    try:
+        documents = loader.load()
+        logger.info(f"Successfully loaded {len(documents)} documents.")
+        # Process documents further as needed
+    except FileNotFoundError as e:
+        logger.error(f"Error: The file was not found. Please check the file path: {e}")
+    except PermissionError as e:
+        logger.error(f"Error: Permission denied when trying to access the file: {e}")
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
 
-def main(file_path: str):
-    print(f"Receieved file path {file_path}")
+
+def main(file_path):
     ingestion_pipeline(file_path)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2 :
+    if len(sys.argv) < 2:
         print("Usage: python main.py <file_path>")
         sys.exit(1)
 
