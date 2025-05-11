@@ -1,9 +1,9 @@
 import os
 from typing import List
 from langchain.schema import Document
-from langchain.document_loaders import Docx2txtLoader
+from langchain_community.document_loaders import Docx2txtLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from abstract_document_loader import AbstractDocumentLoader
+from ingestion.loaders.abstract_document_loader import AbstractDocumentLoader
 from logging_config import setup_logger
 
 logger = setup_logger(__name__)

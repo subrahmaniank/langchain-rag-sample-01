@@ -4,11 +4,13 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from typing import List
 from langchain.schema import Document
-from abstract_document_loader import AbstractDocumentLoader
+from ingestion.loaders.abstract_document_loader import AbstractDocumentLoader
 from logging_config import setup_logger
 
-logger = setup_logger(__name__)
+from dotenv import load_dotenv
 
+logger = setup_logger(__name__)
+load_dotenv()
 
 class PDFLoader(AbstractDocumentLoader):
     """
@@ -88,3 +90,4 @@ class PDFLoader(AbstractDocumentLoader):
         split_docs = text_splitter.split_documents(documents)
         logger.info(f"Split documents into {len(split_docs)} chunks.")
         return split_docs
+
