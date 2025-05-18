@@ -1,6 +1,7 @@
 import os
 import sys
 from ingestion.universal_loader import UniversalLoader
+from ingestion.universal_splitter import UniversalSplitter
 from logging_config import setup_logger
 
 logger = setup_logger(__name__)
@@ -23,6 +24,9 @@ def ingestion_pipeline(file_path):
         documents = loader.load()
         logger.info(f"Successfully loaded {len(documents)} documents.")
         # Process documents further as needed
+        splitter = UniversalSplitter()
+        chunks = splitter.chunk_text(documents)
+        logger.info(f"Successfully split {len(chunks)} chunks.")
     except FileNotFoundError as e:
         logger.error(f"Error: The file was not found. Please check the file path: {e}")
     except PermissionError as e:
