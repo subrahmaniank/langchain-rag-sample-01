@@ -25,7 +25,7 @@ def ingestion_pipeline(file_path):
         logger.info(f"Successfully loaded {len(documents)} documents.")
         # Process documents further as needed
         splitter = UniversalSplitter()
-        chunks = splitter.chunk_text(documents)
+        chunks = splitter.split_documents(documents)
         logger.info(f"Successfully split {len(chunks)} chunks.")
     except FileNotFoundError as e:
         logger.error(f"Error: The file was not found. Please check the file path: {e}")

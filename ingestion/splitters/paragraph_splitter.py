@@ -1,5 +1,6 @@
 from typing import List
 from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplitter
+from langchain.schema import Document
 
 class ParagraphSplitter(AbstractDocumentSplitter):
     def __init__(self, min_length: int = 100, max_length: int = 1000):
@@ -72,16 +73,26 @@ class ParagraphSplitter(AbstractDocumentSplitter):
             
         return chunks
 
-    def split_documents(self, documents: List[str]) -> List[str]:
+    def split_documents(self, documents: List[Document]) -> List[Document]:
         """Split multiple documents into chunks.
         
         Args:
-            documents: List of document texts to split
+            documents: List of Document objects to split
             
         Returns:
-            List of text chunks from all documents
+            List of Document objects split into chunks
         """
-        chunks = []
+        split_docs = []
         for doc in documents:
-            chunks.extend(self.split_text(doc))
-        return chunks
+            # Split the document content
+            text_chunks = self.split_text(doc.page_content)
+            
+            # Create new Document for each chunk while preserving metadata
+            for chunk in text_chunks:
+                new_doc = Document(
+                    page_content=chunk,
+                    metadata=doc.metadata.copy()
+                )
+                split_docs.append(new_doc)
+                
+        return split_docs

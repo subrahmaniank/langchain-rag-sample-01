@@ -1,5 +1,6 @@
 from typing import List
 from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplitter
+from langchain.schema import Document
 
 class FixedWidthSplitter(AbstractDocumentSplitter):
     """A document splitter that splits text into chunks of fixed width."""
@@ -52,17 +53,27 @@ class FixedWidthSplitter(AbstractDocumentSplitter):
 
         return chunks
 
-    def split_documents(self, documents: List[str]) -> List[str]:
+    def split_documents(self, documents: List[Document]) -> List[Document]:
         """
         Split multiple documents into chunks.
         
         Args:
-            documents (List[str]): List of documents to split
+            documents (List[Document]): List of Document objects to split
             
         Returns:
-            List[str]: A list of text chunks from all documents
+            List[Document]: A list of Document objects split into chunks
         """
-        chunks = []
+        split_docs = []
         for doc in documents:
-            chunks.extend(self.split_text(doc))
-        return chunks
+            # Split the document content
+            text_chunks = self.split_text(doc.page_content)
+            
+            # Create new Document for each chunk while preserving metadata
+            for chunk in text_chunks:
+                new_doc = Document(
+                    page_content=chunk,
+                    metadata=doc.metadata.copy()
+                )
+                split_docs.append(new_doc)
+                
+        return split_docs

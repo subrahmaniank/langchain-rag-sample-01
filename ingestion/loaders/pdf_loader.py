@@ -1,8 +1,8 @@
 import os
+from langchain_core import documents
+import pymupdf
 from urllib.parse import unquote
-from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from typing import List
+from typing import List, Optional, override
 from langchain.schema import Document
 from ingestion.loaders.abstract_document_loader import AbstractDocumentLoader
 from logging_config import setup_logger
@@ -14,7 +14,7 @@ load_dotenv()
 
 class PDFLoader(AbstractDocumentLoader):
     """
-    A class for loading and processing PDF documents.
+    A class for loading and processing PDF documents using PyMuPDF (fitz).
 
     This class implements the AbstractDocumentLoader interface and provides
     methods to load PDF files, split them into chunks, and handle file paths.
@@ -44,7 +44,7 @@ class PDFLoader(AbstractDocumentLoader):
 
     def load(self) -> List[Document]:
         """
-        Load the PDF file and return a list of Document objects.
+        Load the PDF file and return a list of Document objects using PyMuPDF (fitz).
 
         Returns:
             List[Document]: A list of Document objects, each representing a page in the PDF.
@@ -65,29 +65,21 @@ class PDFLoader(AbstractDocumentLoader):
         logger.info(f"File found at: {full_path}")
 
         try:
-            loader = PyPDFLoader(full_path)
-            documents = loader.load()
-            logger.info(f"Successfully loaded {len(documents)} pages from the PDF.")
+            source_docs = pymupdf.open(full_path)
+            logger.info(f"PDF loaded successfully. Number of pages: {len(source_docs)}")
+            documents = []
+            #iterate the document pages and create a document object for each page
+            i=0
+            for page in source_docs:
+                i=i+1
+                document =  Document(page_content=page.get_text(), metadata={"page": i, "location": full_path, "file_name": os.path.basename(full_path), "file_extension": os.path.splitext(full_path)[1]})
+                documents.append(document)
             return documents
+
         except Exception as e:
             logger.error(f"Error loading PDF: {str(e)}")
             raise
 
+    @override
     def load_and_split(self) -> List[Document]:
-        """
-        Load the PDF file, split it into chunks, and return a list of Document objects.
-
-        This method loads the PDF using the `load` method and then splits the
-        resulting documents into smaller chunks using RecursiveCharacterTextSplitter.
-
-        Returns:
-            List[Document]: A list of Document objects representing chunks of the PDF content.
-        """
-        documents = self.load()
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=200
-        )
-        split_docs = text_splitter.split_documents(documents)
-        logger.info(f"Split documents into {len(split_docs)} chunks.")
-        return split_docs
-
+        return super().load_and_split()
