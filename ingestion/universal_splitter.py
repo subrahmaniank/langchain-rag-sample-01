@@ -14,16 +14,13 @@ load_dotenv()
 # splitter = AbstractDocumentSplitter()
 
 class UniversalSplitter(AbstractDocumentSplitter):
-    def __init__(self, chunk_size: int = 1000, overlap: int = 100):
-        self.chunk_size = chunk_size
-        self.overlap = overlap
-
+    def __init__(self):
 
         # Get the chunking strategy from environment variable
-        chunking_strategy = os.environ.get('CHUNKING_STRATEGY', 'fixed').lower()
+        chunking_strategy = os.environ.get('CHUNKING_STRATEGY', 'FIXED').lower()
 
         if chunking_strategy == 'fixed':
-            self.splitter = FixedWidthSplitter(chunk_size=self.chunk_size, chunk_overlap=self.overlap)
+            self.splitter = FixedWidthSplitter()
         elif chunking_strategy == 'sentence':
             self.splitter = SentenceSplitter()
         elif chunking_strategy == 'paragraph':

@@ -1,36 +1,67 @@
-from typing import List, Optional
-from langchain_experimental.text_splitter import SemanticChunker
+from typing import List, Optional, Literal
+from langchain_core import embeddings
+from langchain_experimental.text_splitter import (
+    BreakpointThresholdType,
+    SemanticChunker,
+)
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplitter
+from langchain_openai.embeddings import OpenAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
+from dotenv import load_dotenv
+import os
+from logging_config import setup_logger
+
+logger = setup_logger(__name__)
+load_dotenv()
+
 
 class SemanticSplitter(AbstractDocumentSplitter):
     """Split documents based on semantic similarity using embeddings."""
 
     def __init__(
         self,
-        embeddings: Embeddings,
-        chunk_size: int = 300,
-        chunk_overlap: int = 50,
-        threshold: float = 0.7,
     ):
         """Initialize semantic splitter.
 
         Args:
-            embeddings: Embeddings model to use for semantic similarity
             chunk_size: Target size of chunks in characters
             chunk_overlap: Overlap between chunks in characters
             threshold: Similarity threshold for merging chunks
         """
-        self.embeddings = embeddings
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
-        self.threshold = threshold
+        _embedding_model_provider = os.environ.get(
+            "EMBEDDING_MODEL_PROVIDER", "OpenAI"
+        ).lower()
+        logger.debug(f"Using {_embedding_model_provider} embeddings")
+        if _embedding_model_provider == "ollama":
+            _ollama_base_url = os.environ.get(
+                "OLLAMA_BASE_URL", "http://localhost:11434"
+            )
+            _ollama_embedding_model = os.environ.get(
+                "OLLAMA_EMBEDDING_MODEL", "nomic-embed-text:latest"
+            )
+            _embedding_model = OllamaEmbeddings(
+                base_url=_ollama_base_url,
+                model=_ollama_embedding_model,
+            )
+        else:
+            _embedding_model = OpenAIEmbeddings()
+
+        _min_chunk_size = os.environ.get("SCS_MIN_CHUNK_SIZE", None)
+        _breakpoint_threshold_type = os.environ.get(
+            "SCS_BREAKPOINT_THRESHOLD_TYPE", "percentile"
+        ).lower()
+
         self._semantic_chunker = SemanticChunker(
-            embeddings=embeddings,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            threshold=threshold
+            embeddings=_embedding_model,
+            min_chunk_size=(
+                int(_min_chunk_size) if _min_chunk_size is not None else None
+            ),
+            breakpoint_threshold_type = "gradient" if _breakpoint_threshold_type == "gradient" else \
+                            "standard_deviation" if _breakpoint_threshold_type == "standard_deviation" else \
+                            "percentile" if _breakpoint_threshold_type == "percentile" else \
+                            "interquartile"
         )
 
     def split_documents(self, documents: List[Document]) -> List[Document]:
