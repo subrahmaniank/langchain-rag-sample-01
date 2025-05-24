@@ -13,4 +13,5 @@ dependencies = [
     "langchain[aws,openai]>=0.3.25",
     "pymupdf>=1.25.5",
     "pypdf>=5.5.0",
+    "watchdog>=6.0.0",
 ]

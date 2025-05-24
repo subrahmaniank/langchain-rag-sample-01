@@ -1,20 +1,19 @@
+import os
 from typing import List
 
 from langchain.schema import Document
 
 from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplitter
+from logging_config import setup_logger
+
+logger = setup_logger(__name__)
 
 
 class ParagraphSplitter(AbstractDocumentSplitter):
-    def __init__(self, min_length: int = 100, max_length: int = 1000):
-        """Initialize the paragraph splitter with configurable length parameters.
-
-        Args:
-            min_length: Minimum length for a chunk
-            max_length: Maximum length for a chunk
-        """
-        self.min_length = min_length
-        self.max_length = max_length
+    def __init__(self):
+        """Initialize the paragraph splitter with configurable length parameters."""
+        self.min_length = int(os.getenv("PCS_MIN_CHUNK_LENGTH", 100))
+        self.max_length = int(os.environ.get("PCS_MAX_CHUNK_LENGTH", 1000))
 
     def split_text(self, text: str) -> List[str]:
         """Split text into paragraphs based on double newlines.

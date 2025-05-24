@@ -1,23 +1,27 @@
+import os
 from typing import List
 
 from langchain.schema import Document
 
 from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplitter
+from logging_config import setup_logger
 
+logger = setup_logger(__name__)
 
 class FixedWidthSplitter(AbstractDocumentSplitter):
     """A document splitter that splits text into chunks of fixed width."""
 
-    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
+    def __init__(self):
         """
         Initialize the fixed width splitter.
-
-        Args:
-            chunk_size (int): The size of each chunk in characters
-            chunk_overlap (int): The number of characters to overlap between chunks
         """
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
+        _chunk_size = int(os.environ.get("FWCS_CHUNK_SIZE", "1000"))
+        _chunk_overlap = int(os.environ.get("FWCS_CHUNK_OVERLAP", "200"))
+
+        logger.debug(f"FixedWidthSplitter initialized with chunk_size: {_chunk_size} and chunk_overlap: {_chunk_overlap}")
+
+        self.chunk_size = _chunk_size
+        self.chunk_overlap = _chunk_overlap
 
     def split_text(self, text: str) -> List[str]:
         """

@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List
 
+from dotenv import load_dotenv
 from langchain.schema import Document
+
+load_dotenv()
 
 
 class AbstractDocumentSplitter(ABC):
