@@ -4,7 +4,7 @@ from typing import List
 from dotenv import load_dotenv
 from langchain.schema import Document
 
-load_dotenv()
+load_dotenv(override=False)
 
 
 class AbstractDocumentSplitter(ABC):

@@ -11,7 +11,7 @@ from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplit
 from logging_config import setup_logger
 
 logger = setup_logger(__name__)
-load_dotenv()
+load_dotenv(override=False)
 
 
 class SemanticSplitter(AbstractDocumentSplitter):

@@ -10,7 +10,7 @@ from ingestion.loaders.abstract_document_loader import AbstractDocumentLoader
 from logging_config import setup_logger
 
 logger = setup_logger(__name__)
-load_dotenv()
+load_dotenv(override=False)
 
 
 class PDFLoader(AbstractDocumentLoader):

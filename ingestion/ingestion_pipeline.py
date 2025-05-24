@@ -10,7 +10,7 @@ from ingestion.universal_splitter import UniversalSplitter
 from logging_config import setup_logger
 
 logger = setup_logger(__name__)
-load_dotenv()
+load_dotenv(override=False)
 
 
 class IngestionPipeline:
