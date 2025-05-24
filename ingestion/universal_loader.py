@@ -1,5 +1,6 @@
 import os
-from loaders import PDFLoader, TextLoader, DocxLoader, AbstractDocumentLoader
+
+from loaders import AbstractDocumentLoader, DocxLoader, PDFLoader, TextLoader
 from logging_config import setup_logger
 
 logger = setup_logger(__name__)

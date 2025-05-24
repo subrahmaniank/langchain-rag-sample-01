@@ -1,11 +1,17 @@
 import os
-
-from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplitter
-from logging_config import setup_logger
 from typing import List
+
 from dotenv import load_dotenv
 from langchain.schema import Document
-from ingestion.splitters import FixedWidthSplitter, SentenceSplitter, ParagraphSplitter, SemanticSplitter
+
+from ingestion.splitters import (
+    FixedWidthSplitter,
+    ParagraphSplitter,
+    SemanticSplitter,
+    SentenceSplitter,
+)
+from ingestion.splitters.abstract_document_splitter import AbstractDocumentSplitter
+from logging_config import setup_logger
 
 logger = setup_logger(__name__)
 load_dotenv()
@@ -13,20 +19,21 @@ load_dotenv()
 # Initialize the abstract splitter as a reference
 # splitter = AbstractDocumentSplitter()
 
+
 class UniversalSplitter(AbstractDocumentSplitter):
     def __init__(self):
 
         # Get the chunking strategy from environment variable
-        chunking_strategy = os.environ.get('CHUNKING_STRATEGY', 'FIXED').lower()
+        chunking_strategy = os.environ.get("CHUNKING_STRATEGY", "FIXED").lower()
 
-        if chunking_strategy == 'fixed':
+        if chunking_strategy == "fixed":
             self.splitter = FixedWidthSplitter()
-        elif chunking_strategy == 'sentence':
+        elif chunking_strategy == "sentence":
             self.splitter = SentenceSplitter()
-        elif chunking_strategy == 'paragraph':
+        elif chunking_strategy == "paragraph":
             self.splitter = ParagraphSplitter()
-        elif chunking_strategy == 'semantic':
-           self.splitter = SemanticSplitter()
+        elif chunking_strategy == "semantic":
+            self.splitter = SemanticSplitter()
         else:
             raise ValueError(f"Unknown chunking strategy: {chunking_strategy}")
 
@@ -35,4 +42,3 @@ class UniversalSplitter(AbstractDocumentSplitter):
 
     def split_documents(self, documents: List[Document]) -> List[Document]:
         return self.splitter.split_documents(documents)
-

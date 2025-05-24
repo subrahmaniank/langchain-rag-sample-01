@@ -1,12 +1,15 @@
 import os
 from typing import List
+
 from langchain.schema import Document
-from langchain_community.document_loaders import TextLoader as LangchainTextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import TextLoader as LangchainTextLoader
+
 from ingestion.loaders.abstract_document_loader import AbstractDocumentLoader
 from logging_config import setup_logger
 
 logger = setup_logger(__name__)
+
 
 class TextLoader(AbstractDocumentLoader):
     """
@@ -49,20 +52,22 @@ class TextLoader(AbstractDocumentLoader):
             Exception: If there's an error while loading the text file.
         """
         logger.debug(f"TextLoader loading file: {self.file_path}")
-        
+
         full_path = self._get_full_path()
         logger.debug(f"Full path: {full_path}")
-        
+
         if not os.path.exists(full_path):
             logger.error(f"File does not exist at: {full_path}")
             raise FileNotFoundError(f"File not found: {full_path}")
-        
+
         logger.info(f"File found at: {full_path}")
-        
+
         try:
             loader = LangchainTextLoader(full_path)
             documents = loader.load()
-            logger.info(f"Successfully loaded text file with {len(documents)} document(s).")
+            logger.info(
+                f"Successfully loaded text file with {len(documents)} document(s)."
+            )
             return documents
         except Exception as e:
             logger.error(f"Error loading text file: {str(e)}")
@@ -79,7 +84,9 @@ class TextLoader(AbstractDocumentLoader):
             List[Document]: A list of Document objects representing chunks of the text content.
         """
         documents = self.load()
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000, chunk_overlap=200
+        )
         split_docs = text_splitter.split_documents(documents)
         logger.info(f"Split text document into {len(split_docs)} chunks.")
         return split_docs

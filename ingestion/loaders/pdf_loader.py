@@ -1,16 +1,17 @@
 import os
-from langchain_core import documents
-import pymupdf
+from typing import List, override
 from urllib.parse import unquote
-from typing import List, Optional, override
+
+from dotenv import load_dotenv
 from langchain.schema import Document
+import pymupdf
+
 from ingestion.loaders.abstract_document_loader import AbstractDocumentLoader
 from logging_config import setup_logger
 
-from dotenv import load_dotenv
-
 logger = setup_logger(__name__)
 load_dotenv()
+
 
 class PDFLoader(AbstractDocumentLoader):
     """
@@ -68,11 +69,19 @@ class PDFLoader(AbstractDocumentLoader):
             source_docs = pymupdf.open(full_path)
             logger.info(f"PDF loaded successfully. Number of pages: {len(source_docs)}")
             documents = []
-            #iterate the document pages and create a document object for each page
-            i=0
+            # iterate the document pages and create a document object for each page
+            i = 0
             for page in source_docs:
-                i=i+1
-                document =  Document(page_content=page.get_text(), metadata={"page": i, "location": full_path, "file_name": os.path.basename(full_path), "file_extension": os.path.splitext(full_path)[1]})
+                i = i + 1
+                document = Document(
+                    page_content=page.get_text(),  # type: ignore
+                    metadata={
+                        "page": i,
+                        "location": full_path,
+                        "file_name": os.path.basename(full_path),
+                        "file_extension": os.path.splitext(full_path)[1],
+                    },
+                )
                 documents.append(document)
             return documents
 
