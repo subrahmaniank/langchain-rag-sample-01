@@ -28,15 +28,15 @@ class SemanticSplitter(AbstractDocumentSplitter):
             threshold: Similarity threshold for merging chunks
         """
         _embedding_model_provider = os.environ.get(
-            "EMBEDDING_MODEL_PROVIDER", "OpenAI"
+            "SCS_EMBEDDING_MODEL_PROVIDER", "OpenAI"
         ).lower()
         logger.debug(f"Using {_embedding_model_provider} embeddings")
         if _embedding_model_provider == "ollama":
             _ollama_base_url = os.environ.get(
-                "OLLAMA_BASE_URL", "http://localhost:11434"
+                "SCS_OLLAMA_BASE_URL", "http://localhost:11434"
             )
             _ollama_embedding_model = os.environ.get(
-                "OLLAMA_EMBEDDING_MODEL", "nomic-embed-text:latest"
+                "SCS_OLLAMA_EMBEDDING_MODEL", "nomic-embed-text:latest"
             )
             _embedding_model = OllamaEmbeddings(
                 base_url=_ollama_base_url,

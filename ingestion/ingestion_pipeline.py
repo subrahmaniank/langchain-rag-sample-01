@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from watchdog.observers import Observer
 
 from ingestion.ingestion_pipeline_handler import IngestionPipelineHandler
+from ingestion.universal_embedder import UniversalEmbedder
 from ingestion.universal_loader import UniversalLoader
 from ingestion.universal_splitter import UniversalSplitter
 from logging_config import setup_logger
@@ -48,17 +49,23 @@ class IngestionPipeline:
     def process_document(self, file_path):
         loader = UniversalLoader(file_path)
         splitter = UniversalSplitter()
+        embedder = UniversalEmbedder()
         try:
             documents = loader.load()
             logger.info(f"Successfully loaded {len(documents)} documents.")
             # Process documents further as needed
             chunks = splitter.split_documents(documents)
             logger.info(f"Successfully split {len(chunks)} chunks.")
+
             # loop through the chunks and print them
             if logger.debug:
                 for chunk in chunks:
                     print(chunk.page_content)
                     print("-" * 80)
+
+            embeddings = embedder.embed_documents(chunks)
+            logger.info(f"Successfully embedded {len(embeddings)} embeddings.")
+
         except FileNotFoundError as e:
             logger.error(
                 f"Error: The file was not found. Please check the file path: {e}"

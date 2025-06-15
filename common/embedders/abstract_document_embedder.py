@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List
+from dotenv import load_dotenv
+from langchain.schema import Document
 
+load_dotenv(override=False)
 
 
 class AbstractDocumentEmbedder(ABC):
     @abstractmethod
-    def embed_documents(self) -> List[List[float]]:
+    def embed_documents(self, documents: List[Document]) -> List[List[float]]:
         """
         Load the document and return a list of Document objects.
 
@@ -20,7 +23,7 @@ class AbstractDocumentEmbedder(ABC):
         pass
 
     @abstractmethod
-    def embed_query(self) -> List[float]:
+    def embed_query(self, input_text: str) -> List[float]:
         """
         Load the document, split it into chunks, and return a list of Document objects.
 
