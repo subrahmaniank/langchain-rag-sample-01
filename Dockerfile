@@ -1,14 +1,14 @@
 FROM python:3.13-slim
 
 # Install uv package manager
-RUN curl -fsSL https://get.uv.so | bash
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies using uv
+RUN uv install
 
 WORKDIR /app
 
 COPY . .
-
-# Install dependencies using uv
-RUN uv install
 
 
 ENTRYPOINT ["uv", "run", "main.py"]
