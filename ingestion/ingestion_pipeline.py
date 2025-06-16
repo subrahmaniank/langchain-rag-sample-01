@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from watchdog.observers import Observer
 
 from ingestion.ingestion_pipeline_handler import IngestionPipelineHandler
+from ingestion.universal_vector_store import UniversalVectorStore
 from ingestion.universal_embedder import UniversalEmbedder
 from ingestion.universal_loader import UniversalLoader
 from ingestion.universal_splitter import UniversalSplitter
@@ -50,6 +51,8 @@ class IngestionPipeline:
         loader = UniversalLoader(file_path)
         splitter = UniversalSplitter()
         embedder = UniversalEmbedder()
+        vector_store = UniversalVectorStore()
+
         try:
             documents = loader.load()
             logger.info(f"Successfully loaded {len(documents)} documents.")
@@ -65,6 +68,8 @@ class IngestionPipeline:
 
             embeddings = embedder.embed_documents(chunks)
             logger.info(f"Successfully embedded {len(embeddings)} embeddings.")
+
+            vector_store.save_doc_embeddings(chunks, embeddings)
 
         except FileNotFoundError as e:
             logger.error(
